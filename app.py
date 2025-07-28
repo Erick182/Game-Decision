@@ -155,55 +155,56 @@ st.plotly_chart(fig_line)
 
 st.header("🔍 Diagnóstico Individual de Jogadores")
 
-nome_selecionado = st.text_input("Digite o nome do jogador para diagnóstico:", "Luka Doncic")
 def diagnostico_jogador(df, nome_jogador):
-    # Filtra o jogador
     jogador = df[df['PLAYER_NAME'].str.lower() == nome_jogador.lower()]
 
     if jogador.empty:
         st.warning(f"Jogador '{nome_jogador}' não encontrado.")
         return
 
-    # Extrai os dados (pega a média para o jogador caso haja mais de uma linha)
+    # Usar médias por jogo (se tiver GP = Games Played)
+    gp = jogador['GP'].mean() if 'GP' in df.columns else None
+
+    if gp is None or gp == 0:
+        st.warning("Número de jogos (GP) não disponível. Não é possível calcular médias por jogo corretamente.")
+        return
+
+    # Conversão para médias por jogo
     fg = jogador['FG_PCT'].mean()
-    ast = jogador['AST'].mean()
-    tov = jogador['TOV'].mean()
     ft = jogador['FT_PCT'].mean() if 'FT_PCT' in df.columns else None
-    min_jog = jogador['MIN'].mean()
-    
-    # Benchmarks simples (você pode ajustar)
+    ast_pg = jogador['AST'].sum() / gp
+    tov_pg = jogador['TOV'].sum() / gp
+    min_pg = jogador['MIN'].sum() / gp
+
+    # Benchmarks realistas por jogo
     media_fg = 0.45
-    media_ast = 5
-    media_tov = 2.5
     media_ft = 0.75
+    media_ast = 3.0
+    media_tov = 2.0
 
     st.markdown(f"### Diagnóstico para **{nome_jogador.title()}**")
 
     if fg < media_fg:
-        st.write(f"- :warning: Aproveitamento de arremessos (FG%) baixo: {fg:.2f} (média ideal: {media_fg})")
+        st.write(f"- ⚠️ FG% baixo: **{fg:.2f}** (ideal: > {media_fg})")
     else:
-        st.write(f"- ✅ FG% adequado: {fg:.2f}")
-
-    if ast < media_ast:
-        st.write(f"- :warning: Assistências abaixo da média: {ast:.1f} (média ideal: {media_ast})")
-    else:
-        st.write(f"- ✅ Assistências satisfatórias: {ast:.1f}")
-
-    if tov > media_tov:
-        st.write(f"- :warning: Turnovers elevados: {tov:.1f} (ideal abaixo de {media_tov})")
-    else:
-        st.write(f"- ✅ Controle de bola razoável: {tov:.1f}")
+        st.write(f"- ✅ Bom FG%: **{fg:.2f}**")
 
     if ft is not None:
         if ft < media_ft:
-            st.write(f"- :warning: Aproveitamento em lances livres (FT%): {ft:.2f} (ideal acima de {media_ft})")
+            st.write(f"- ⚠️ FT% abaixo do ideal: **{ft:.2f}** (ideal: > {media_ft})")
         else:
-            st.write(f"- ✅ Aproveitamento em lances livres adequado: {ft:.2f}")
+            st.write(f"- ✅ Bom FT%: **{ft:.2f}**")
 
-    # Comente ou adapte para outras métricas que você quiser destacar
-    st.write(f"- 🕒 Média de minutos em quadra: {min_jog:.1f}")
+    if ast_pg < media_ast:
+        st.write(f"- ⚠️ Poucas assistências por jogo: **{ast_pg:.1f}** (ideal: > {media_ast})")
+    else:
+        st.write(f"- ✅ Assistências por jogo: **{ast_pg:.1f}**")
+
+    if tov_pg > media_tov:
+        st.write(f"- ⚠️ Muitos turnovers por jogo: **{tov_pg:.1f}** (ideal: < {media_tov})")
+    else:
+        st.write(f"- ✅ Turnovers sob controle: **{tov_pg:.1f}**")
+
+    st.write(f"- 🕒 Minutos por jogo: **{min_pg:.1f}**")
 
     st.markdown("---")
-
-if nome_selecionado.strip():
-    diagnostico_jogador(df, nome_selecionado.strip())
