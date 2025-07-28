@@ -154,6 +154,7 @@ st.plotly_chart(fig_line)
 
 
 st.header("🔍 Diagnóstico Individual de Jogadores")
+nome_selecionado = st.text_input("Digite o nome do jogador para diagnóstico:", "Dorian Finney-Smith")
 
 def diagnostico_jogador(df, nome_jogador):
     jogador = df[df['PLAYER_NAME'].str.lower() == nome_jogador.lower()]
