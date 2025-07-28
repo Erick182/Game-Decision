@@ -154,6 +154,7 @@ st.plotly_chart(fig_line)
 
 
 st.header("🔍 Diagnóstico Individual de Jogadores")
+
 nome_selecionado = st.text_input("Digite o nome do jogador para diagnóstico:", "Dorian Finney-Smith")
 
 def diagnostico_jogador(df, nome_jogador):
@@ -209,3 +210,7 @@ def diagnostico_jogador(df, nome_jogador):
     st.write(f"- 🕒 Minutos por jogo: **{min_pg:.1f}**")
 
     st.markdown("---")
+
+# ✅ CHAMADA DA FUNÇÃO
+if nome_selecionado.strip():
+    diagnostico_jogador(df, nome_selecionado.strip())
