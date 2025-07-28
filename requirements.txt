@@ -4,6 +4,3 @@ matplotlib
 seaborn
 scikit-learn
 plotly
-sklearn.linear_model
-sklearn.model_selection
-plotly.express
